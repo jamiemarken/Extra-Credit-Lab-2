@@ -1,0 +1,52 @@
+---
+title: "Lab 2 Extra Credit"
+author: "Jamie Marken"
+date: "February 26th 2019"
+output: html_document
+---
+
+#Lab 2 Extra Credit
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r Data, include = FALSE}
+library(sf)
+library(tmap)
+library(dplyr)
+wacdata <- read.csv("wa_wac_S000_JT00_2015.csv")
+tacomablockdata <- st_read("tacomablocks-polygon.shp")
+```
+
+
+```{r Merging, include = FALSE}
+columns <- select(wacdata, w_geocode, CNS05, CNS06, CNS16, CD01, CD04)
+columns$w_geocode[which(length(columns$w_geocode) == 14)]<-paste0("0", columns$w_geocode[which(length(columns$w_geocode) == 4)])
+columns$GEOID10 =columns$w_geocode  
+wacblock <- merge(tacomablockdata, columns, by=c("GEOID10"))
+```
+
+#Choropleth Maps (static)
+```{r Static choropleth Maps, include = TRUE}
+#Static choropleth maps 
+tm_shape(wacblock) +tm_fill(col="CNS05", title = "Number of Jobs") + tm_borders() + tm_layout(title = "All Tacoma Manufacturing Employment", title.position = c("RIGHT", "TOP")) + tm_layout(aes.palette = list(seq = "Blues")) 
+tm_shape(wacblock) + tm_fill(col="CNS06", title = "Number of Jobs") + tm_borders() +tm_layout(title = "All Tacoma Warehouse and Transportation Employment", title.position = c("RIGHT", "TOP")) + tm_layout(aes.palette = list(seq = "Blues"))
+tm_shape(wacblock) + tm_fill(col="CNS16", title = "Number of Jobs") + tm_borders() + tm_layout(title = "All Tacoma Health Care and Social Assistance Employment", title.position = c("RIGHT", "TOP")) + tm_layout(aes.palette = list(seq = "Blues"))
+```
+
+#All Tacoma Employment for People with Bachelor's Degrees or Advanced Degrees
+```{r Interactive Maps, include = TRUE}
+#Interactive Choropleth Map
+tmap_mode("view") + tm_shape(wacblock) + tm_fill("CD01", title = "Number of Jobs") + tm_borders() + tm_view(view.legend.position = c("left", "bottom")) + tm_layout(aes.palette = list(seq = "Blues"))
+
+```
+
+
+#All Tacoma Employment for People with Less than High School Education
+```{r Interactive Choropleth Map 2, include = TRUE}
+#Interactive Choropleth Map 2
+tmap_mode("view") + tm_shape(wacblock) + tm_fill("CD04", title = "Number of Jobs") + tm_borders() + tm_view(view.legend.position = c("left", "bottom")) + tm_layout(aes.palette = list(seq = "Blues"))
+```
+
